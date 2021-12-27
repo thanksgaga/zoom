@@ -42,6 +42,8 @@ wss.on("connection", (socket) => {
 			case "nickname":
 				socket["nickname"] = messageString.payload;
 				break;
+			default:
+				console.log("No socket message available");
 		}
 	});
 });
