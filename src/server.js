@@ -1,6 +1,6 @@
 import express from "express";
 import http from "http";
-import WebSocket from "ws";
+import SocketIO from "socket.io";
 
 const app = express();
 
@@ -13,21 +13,20 @@ app.get("/*", (_, res) => res.redirect("/"));
 
 const handleListen = () => console.log(`Listening on http://localhost:3000`);
 
-const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
+const httpServer = http.createServer(app);
+const wsServer = SocketIO(httpServer);
 
-function onSocketClose() {
-	console.log("Disconnected from the Browser ❌");
-}
-
-const sockets = [];
+wsServer.on("connection", (socket) => {
+	console.log(socket);
+});
+/* const sockets = [];
 
 wss.on("connection", (socket) => {
 	sockets.push(socket); //list of the sockets connected to this server
 	socket["nickname"] = "Anonymous";
 
 	console.log("Connected to Browser ✅");
-	socket.on("close", onSocketClose);
+	socket.on("close", () => console.log("Disconnected from the Browser ❌"));
 
 	socket.on("message", (msg) => {
 		const messageUTF8 = msg.toString("utf-8");
@@ -46,6 +45,6 @@ wss.on("connection", (socket) => {
 				console.log("No socket message available");
 		}
 	});
-});
+}); */
 
-server.listen(3000, handleListen);
+httpServer.listen(3000, handleListen);
