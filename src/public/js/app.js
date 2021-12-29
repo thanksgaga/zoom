@@ -4,9 +4,6 @@ const welcome = document.getElementById("welcome");
 const roomForm = welcome.querySelector("form");
 const room = document.getElementById("room");
 
-function backendDone(msg) {
-	console.log(`The backend says:`, msg);
-}
 room.hidden = true;
 let roomName;
 
@@ -38,9 +35,18 @@ function handleMessageSend(event) {
 	event.preventDefault();
 	const messageInput = room.querySelector("input");
 	value = messageInput.value;
-	socket.emit("new_message", value, () => {
+	socket.emit("new_message", value, roomName, () => {
 		addMessage(`You: ${value}`);
 	});
+
 	messageInput.value = "";
 }
 roomForm.addEventListener("submit", handleRoomSubmit);
+
+socket.on("welcome", () => {
+	addMessage("Someone joined");
+});
+socket.on("bye", () => {
+	addMessage("Somone left ㅠㅠ");
+});
+socket.on("new_message", addMessage);
