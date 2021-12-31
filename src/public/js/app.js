@@ -3,15 +3,17 @@ const socket = io();
 const welcome = document.getElementById("welcome");
 const roomForm = welcome.querySelector("form");
 const room = document.getElementById("room");
+const nickname = document.getElementById("nickname");
+const nickForm = nickname.querySelector("form");
 
 room.hidden = true;
+nickname.hidden = true;
 let roomName;
 
 function showRoom() {
 	welcome.hidden = true;
 	room.hidden = false;
-	const h3 = room.querySelector("h3");
-	h3.innerText = `You are in the Room ${roomName}`;
+	nickname.hidden = false;
 	const messageForm = room.querySelector("form");
 	messageForm.addEventListener("submit", handleMessageSend);
 }
@@ -41,12 +43,39 @@ function handleMessageSend(event) {
 
 	messageInput.value = "";
 }
-roomForm.addEventListener("submit", handleRoomSubmit);
 
-socket.on("welcome", () => {
-	addMessage("Someone joined");
+function setNickname(event) {
+	event.preventDefault();
+	const nickInput = nickForm.querySelector("input");
+	value = nickInput.value;
+	socket.emit("set_nickname", value, () => {
+		addMessage(`Your nickname is changed to ${value}`);
+	});
+}
+
+roomForm.addEventListener("submit", handleRoomSubmit);
+nickForm.addEventListener("submit", setNickname);
+
+socket.on("welcome", (nickname, newCount) => {
+	const h3 = room.querySelector("h3");
+	h3.innerText = `Room ${roomName} (${newCount})`;
+	addMessage(`${nickname} is joined`);
 });
-socket.on("bye", () => {
-	addMessage("Somone left ㅠㅠ");
+socket.on("bye", (nicknamem, newCount) => {
+	const h3 = room.querySelector("h3");
+	h3.innerText = `Room ${roomName} (${newCount})`;
+	addMessage(`${nickname} just left ㅠㅠ`);
 });
-socket.on("new_message", addMessage);
+socket.on("new_message", (message, nickname) => {
+	addMessage(`${nickname}: ${message}`);
+});
+
+socket.on("room_change", (rooms) => {
+	const roomList = welcome.querySelector("ul");
+	roomList.innerHTML = "";
+	rooms.forEach((room) => {
+		const li = document.createElement("li");
+		li.innerText = room;
+		roomList.appendChild(li);
+	});
+});
