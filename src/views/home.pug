@@ -12,6 +12,10 @@ html(lang="en")
             nav 
                 a(href="/") Home
         main 
-        
+            div#myStream
+                video#myFace(autoplay, playsinline, width="400", height="300")
+                button#mute Mute 
+                button#camera Turn Camera Off
+                select#cameras
         script(src="/socket.io/socket.io.js") 
         script(src="/public/js/app.js") 
